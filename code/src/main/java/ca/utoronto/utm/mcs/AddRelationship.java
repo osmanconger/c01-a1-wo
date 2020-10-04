@@ -32,14 +32,12 @@ public class AddRelationship implements HttpHandler {
         String body = Utils.convert(httpExchange.getRequestBody());
         JSONObject deserialized = new JSONObject(body);
 
-        if (deserialized.has("actorId") && deserialized.has("moveId")) {
+        if (deserialized.has("actorId") && deserialized.has("movieId")) {
             String actorId = deserialized.getString("actorId");
-            String moveId = deserialized.getString("moveId");
+            String movieId = deserialized.getString("movieId");
+            System.out.println(actorId + ":" + movieId);
 
-            //database.insertActorId("1");
-            //database.insertActorName(actorName);
-            //database.insertActor(actorId, actorName);
-            //database.close();
+            database.linkMovieActor(actorId, movieId);
 
             httpExchange.sendResponseHeaders(200, -1);
         } else {

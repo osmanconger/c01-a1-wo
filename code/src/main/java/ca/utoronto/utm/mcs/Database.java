@@ -1,44 +1,47 @@
 package ca.utoronto.utm.mcs;
 
 import static org.neo4j.driver.Values.parameters;
-import org.neo4j.driver.AuthTokens;
-import org.neo4j.driver.Driver;
-import org.neo4j.driver.GraphDatabase;
-import org.neo4j.driver.Session;
+
+import org.neo4j.driver.*;
 
 public class Database {
     private Driver driver;
     private String uriDb;
 
     public Database() {
-        uriDb = "bolt://localhost:7687";
+        uriDb = "bolt://localhost:11005";
         driver = GraphDatabase.driver(uriDb, AuthTokens.basic("neo4j","1234"));
         System.out.println("database constructor done");
     }
 
-    public void insertActorId(String actorId) {
-        System.out.println("test 1");
-        try (Session session = driver.session()){
-            session.writeTransaction(tx -> tx.run("MERGE (a:ActorId {actorId: $x})",
-                    parameters("x", actorId)));
-            session.close();
+    public boolean checkAndInsertActor(String actorId, String actorName) {
+        if(!checkIfActorIdExists(actorId)) {
+            insertActor(actorId, actorName);
+            return true;
+        } else {
+            return false;
         }
     }
 
-    public void insertActorName(String actorName) {
-        try (Session session = driver.session()){
-            session.writeTransaction(tx -> tx.run("MERGE (a:ActorName {actorName: $x})",
-                    parameters("x", actorName)));
-            session.close();
+    private boolean checkIfActorIdExists(String actorId) {
+        try (Session session = driver.session())
+        {
+            try (Transaction tx = session.beginTransaction()) {
+                Result node_boolean = tx.run("MATCH (j:Actor {actorId: $x})"
+                                + "RETURN j"
+                        ,parameters("x", actorId) );
+                if (node_boolean.hasNext()) {
+                    return true;
+                }
+            }
         }
+        return false;
     }
 
-    public void insertActor(String actorId, String actorName) {
+    private void insertActor(String actorId, String actorName) {
         try (Session session = driver.session()){
-            session.writeTransaction(tx -> tx.run("MATCH (a:ActorId {actorId:$x}),"
-                    + "(t:ActorName {actorName:$y})\n" +
-                    "MERGE (a)-[r:WROTE]->(t)\n" +
-                    "RETURN r", parameters("x", actorId, "y", actorName)));
+            session.writeTransaction(tx -> tx.run("CREATE (n:Actor { actorId: $x, actorName: $y })"
+                    , parameters("x", actorId, "y", actorName)));
             session.close();
         }
     }
@@ -66,6 +69,16 @@ public class Database {
                     + "(t:MovieName {movieName:$y})\n" +
                     "MERGE (a)-[r:WROTE]->(t)\n" +
                     "RETURN r", parameters("x", movieId, "y", movieName)));
+            session.close();
+        }
+    }
+
+    public void linkMovieActor(String actorId, String movieId) {
+        try (Session session = driver.session()){
+            session.writeTransaction(tx -> tx.run("MATCH (a:ActorId {actorId:$x}),"
+                    + "(t:MovieId {movieId:$y})\n" +
+                    "MERGE (a)-[r:ACTED]->(t)\n" +
+                    "RETURN r", parameters("x", actorId, "y", movieId)));
             session.close();
         }
     }
