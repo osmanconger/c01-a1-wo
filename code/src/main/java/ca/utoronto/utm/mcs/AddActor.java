@@ -38,10 +38,10 @@ public class AddActor implements HttpHandler {
 
             System.out.println(actorId  + " : " + actorName);
 
-            database.insertActorId("1");
-            //database.insertActorName(actorName);
-            //database.insertActor(actorId, actorName);
-            database.close();
+            database.insertActorId(actorId);
+            database.insertActorName(actorName);
+            database.insertActor(actorId, actorName);
+            //database.close();
 
             httpExchange.sendResponseHeaders(200, -1);
         } else {
