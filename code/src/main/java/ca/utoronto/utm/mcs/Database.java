@@ -11,7 +11,7 @@ public class Database {
     private String uriDb;
 
     public Database() {
-        uriDb = "bolt://localhost:11005";
+        uriDb = "bolt://localhost:7687";
         driver = GraphDatabase.driver(uriDb, AuthTokens.basic("neo4j","1234"));
         System.out.println("database constructor done");
     }
@@ -39,6 +39,33 @@ public class Database {
                     + "(t:ActorName {actorName:$y})\n" +
                     "MERGE (a)-[r:WROTE]->(t)\n" +
                     "RETURN r", parameters("x", actorId, "y", actorName)));
+            session.close();
+        }
+    }
+
+    public void insertMovieId(String movieId) {
+        System.out.println("test 1");
+        try (Session session = driver.session()){
+            session.writeTransaction(tx -> tx.run("MERGE (a:MovieId {movieId: $x})",
+                    parameters("x", movieId)));
+            session.close();
+        }
+    }
+
+    public void insertMovieName(String movieName) {
+        try (Session session = driver.session()){
+            session.writeTransaction(tx -> tx.run("MERGE (a:MovieName {movieName: $x})",
+                    parameters("x", movieName)));
+            session.close();
+        }
+    }
+
+    public void insertMovie(String movieId, String movieName) {
+        try (Session session = driver.session()){
+            session.writeTransaction(tx -> tx.run("MATCH (a:MovieId {movieId:$x}),"
+                    + "(t:MovieName {movieName:$y})\n" +
+                    "MERGE (a)-[r:WROTE]->(t)\n" +
+                    "RETURN r", parameters("x", movieId, "y", movieName)));
             session.close();
         }
     }

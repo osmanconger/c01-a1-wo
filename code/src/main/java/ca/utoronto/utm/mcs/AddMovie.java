@@ -32,14 +32,14 @@ public class AddMovie implements HttpHandler {
         String body = Utils.convert(httpExchange.getRequestBody());
         JSONObject deserialized = new JSONObject(body);
 
-        if (deserialized.has("name") && deserialized.has("moveId")) {
-            String actorName = deserialized.getString("name");
-            String moveId = deserialized.getString("moveId");
-
-            //database.insertActorId("1");
-            //database.insertActorName(actorName);
-            //database.insertActor(actorId, actorName);
-            //database.close();
+        if (deserialized.has("name") && deserialized.has("movieId")) {
+            String movieName = deserialized.getString("name");
+            String movieId = deserialized.getString("movieId");
+            System.out.println(movieName + ":" + movieId);
+            database.insertMovieId(movieId);
+            database.insertMovieName(movieName);
+            database.insertMovie(movieId, movieName);
+            database.close();
 
             httpExchange.sendResponseHeaders(200, -1);
         } else {
