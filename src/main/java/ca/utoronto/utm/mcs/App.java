@@ -13,6 +13,13 @@ public class App
         Database database = new Database();
 
         server.createContext("/api/v1/addActor", new AddActor(database));
+        server.createContext("/api/v1/addMovie", new AddMovie(database));
+        server.createContext("/api/v1/addRelationship", new AddRelationship(database));
+        server.createContext("/api/v1/getActor", new GetActor(database));
+        server.createContext("/api/v1/getMovie", new GetMovie(database));
+        server.createContext("/api/v1/hasRelationship", new HasRelationship(database));
+        server.createContext("/api/v1/computeBaconNumber", new ComputeBaconNumber(database));
+        server.createContext("/api/v1/computeBaconPath", new ComputeBaconPath(database));
 
         server.start();
         System.out.printf("Server started on port %d...\n", PORT);

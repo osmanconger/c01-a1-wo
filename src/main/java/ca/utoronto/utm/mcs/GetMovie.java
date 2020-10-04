@@ -2,25 +2,25 @@ package ca.utoronto.utm.mcs;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 
-import org.json.*;
 
-
-public class AddActor implements HttpHandler {
+public class GetMovie implements HttpHandler {
 
     private Database database;
 
-    public AddActor(Database database) {
+    public GetMovie(Database database) {
         this.database = database;
     }
 
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
         try {
-            if (httpExchange.getRequestMethod().equals("PUT")) {
-                handlePut(httpExchange);
+            if (httpExchange.getRequestMethod().equals("GET")) {
+                handleGet(httpExchange);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -28,20 +28,17 @@ public class AddActor implements HttpHandler {
         }
     }
 
-    private void handlePut(HttpExchange httpExchange) throws IOException, JSONException {
+    private void handleGet(HttpExchange httpExchange) throws IOException, JSONException {
         String body = Utils.convert(httpExchange.getRequestBody());
         JSONObject deserialized = new JSONObject(body);
 
-        if (deserialized.has("name") && deserialized.has("actorId")) {
-            String actorName = deserialized.getString("name");
-            String actorId = deserialized.getString("actorId");
+        if (deserialized.has("movieId")) {
+            String movieId = deserialized.getString("movieId");
 
-            System.out.println(actorId  + " : " + actorName);
-
-            database.insertActorId("1");
+            //database.insertActorId("1");
             //database.insertActorName(actorName);
             //database.insertActor(actorId, actorName);
-            database.close();
+            //database.close();
 
             httpExchange.sendResponseHeaders(200, -1);
         } else {

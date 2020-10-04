@@ -2,17 +2,17 @@ package ca.utoronto.utm.mcs;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 
-import org.json.*;
 
-
-public class AddActor implements HttpHandler {
+public class AddMovie implements HttpHandler {
 
     private Database database;
 
-    public AddActor(Database database) {
+    public AddMovie(Database database) {
         this.database = database;
     }
 
@@ -32,16 +32,14 @@ public class AddActor implements HttpHandler {
         String body = Utils.convert(httpExchange.getRequestBody());
         JSONObject deserialized = new JSONObject(body);
 
-        if (deserialized.has("name") && deserialized.has("actorId")) {
+        if (deserialized.has("name") && deserialized.has("moveId")) {
             String actorName = deserialized.getString("name");
-            String actorId = deserialized.getString("actorId");
+            String moveId = deserialized.getString("moveId");
 
-            System.out.println(actorId  + " : " + actorName);
-
-            database.insertActorId("1");
+            //database.insertActorId("1");
             //database.insertActorName(actorName);
             //database.insertActor(actorId, actorName);
-            database.close();
+            //database.close();
 
             httpExchange.sendResponseHeaders(200, -1);
         } else {

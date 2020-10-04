@@ -11,18 +11,18 @@ public class Database {
     private String uriDb;
 
     public Database() {
-        uriDb = "bolt://localhost:7687";
+        uriDb = "bolt://localhost:11005";
         driver = GraphDatabase.driver(uriDb, AuthTokens.basic("neo4j","1234"));
         System.out.println("database constructor done");
     }
 
     public void insertActorId(String actorId) {
         System.out.println("test 1");
-        /*try (Session session = driver.session()){
+        try (Session session = driver.session()){
             session.writeTransaction(tx -> tx.run("MERGE (a:ActorId {actorId: $x})",
                     parameters("x", actorId)));
             session.close();
-        }*/
+        }
     }
 
     public void insertActorName(String actorName) {
