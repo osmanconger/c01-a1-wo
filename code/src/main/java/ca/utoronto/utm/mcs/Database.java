@@ -11,7 +11,6 @@ public class Database {
     public Database() {
         uriDb = "bolt://localhost:11005";
         driver = GraphDatabase.driver(uriDb, AuthTokens.basic("neo4j","1234"));
-        System.out.println("database constructor done");
     }
 
     public boolean checkAndInsertActor(String actorId, String actorName) {
@@ -46,29 +45,34 @@ public class Database {
         }
     }
 
-    public void insertMovieId(String movieId) {
-        System.out.println("test 1");
-        try (Session session = driver.session()){
-            session.writeTransaction(tx -> tx.run("MERGE (a:MovieId {movieId: $x})",
-                    parameters("x", movieId)));
-            session.close();
+    public boolean checkAndInsertMovie(String movieId, String movieName) {
+        if(!checkIfMovieIdExists(movieId)) {
+            insertMovie(movieId, movieName);
+            return true;
+        } else {
+            return false;
         }
     }
 
-    public void insertMovieName(String movieName) {
-        try (Session session = driver.session()){
-            session.writeTransaction(tx -> tx.run("MERGE (a:MovieName {movieName: $x})",
-                    parameters("x", movieName)));
-            session.close();
+    private boolean checkIfMovieIdExists(String movieId) {
+        try (Session session = driver.session())
+        {
+            try (Transaction tx = session.beginTransaction()) {
+                Result node_boolean = tx.run("MATCH (j:Movie {movieId: $x})"
+                                + "RETURN j"
+                        ,parameters("x", movieId) );
+                if (node_boolean.hasNext()) {
+                    return true;
+                }
+            }
         }
+        return false;
     }
 
-    public void insertMovie(String movieId, String movieName) {
+    private void insertMovie(String movieId, String movieName) {
         try (Session session = driver.session()){
-            session.writeTransaction(tx -> tx.run("MATCH (a:MovieId {movieId:$x}),"
-                    + "(t:MovieName {movieName:$y})\n" +
-                    "MERGE (a)-[r:WROTE]->(t)\n" +
-                    "RETURN r", parameters("x", movieId, "y", movieName)));
+            session.writeTransaction(tx -> tx.run("CREATE (n:Movie { movieId: $x, movieName: $y })"
+                    , parameters("x", movieId, "y", movieName)));
             session.close();
         }
     }

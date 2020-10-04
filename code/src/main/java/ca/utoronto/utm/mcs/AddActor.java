@@ -36,8 +36,6 @@ public class AddActor implements HttpHandler {
             String actorName = deserialized.getString("name");
             String actorId = deserialized.getString("actorId");
 
-            System.out.println(actorId  + " : " + actorName);
-
             if(database.checkAndInsertActor(actorId, actorName)) {
                 httpExchange.sendResponseHeaders(200, -1);
             } else {
