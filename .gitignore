@@ -13,4 +13,6 @@ workbench.xmi
 .classpath
 .project
 .settings/
+.idea/
+*.iml
 
