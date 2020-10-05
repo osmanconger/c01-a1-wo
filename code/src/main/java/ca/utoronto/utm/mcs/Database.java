@@ -221,15 +221,13 @@ public class Database {
             } else {
                 try (Transaction tx = session.beginTransaction()) {
                     Result node_boolean = tx.run("MATCH (k:Actor { actorName: 'Kevin Bacon' }),(m:Actor { actorId: $x }), p = shortestPath((k)-[:ACTED_IN*]-(m))\n" +
-                                    "RETURN length(p) as length"
+                                    "RETURN length(p)-1 as length"
                             , parameters("x", actorId));
                     if (node_boolean.hasNext()) {
                         try {
                             String code = node_boolean.next().get("length").toString();
                             return code;
                         } catch (Exception e) {
-                            System.out.println("WIZERROR: " + e);
-                            System.out.println("0");
                             return "0";
                         }
                     } else {
