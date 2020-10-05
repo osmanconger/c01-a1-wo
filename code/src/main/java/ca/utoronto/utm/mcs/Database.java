@@ -9,7 +9,7 @@ public class Database {
     private String uriDb;
 
     public Database() {
-        uriDb = "bolt://localhost:11005";
+        uriDb = "bolt://localhost:7687";
         driver = GraphDatabase.driver(uriDb, AuthTokens.basic("neo4j","1234"));
     }
 
@@ -77,13 +77,35 @@ public class Database {
         }
     }
 
-    public void linkMovieActor(String actorId, String movieId) {
-        try (Session session = driver.session()){
-            session.writeTransaction(tx -> tx.run("MATCH (a:ActorId {actorId:$x}),"
-                    + "(t:MovieId {movieId:$y})\n" +
-                    "MERGE (a)-[r:ACTED]->(t)\n" +
-                    "RETURN r", parameters("x", actorId, "y", movieId)));
-            session.close();
+    private boolean checkIfRelationShipExists(String actorId, String movieId) {
+        try (Session session = driver.session())
+        {
+            try (Transaction tx = session.beginTransaction()) {
+                Result node_boolean = tx.run("RETURN EXISTS( (:Actor {actorId: $x})\n" +
+                                "-[:ACTED]-(:Movie {movieId: $y}) ) as bool"
+                        ,parameters("x", actorId, "y", movieId) );
+                if (node_boolean.hasNext()) {
+                    return node_boolean.next().get("bool").toString().equals("TRUE");
+                }
+            }
+        }
+        return false;
+    }
+
+    public int linkMovieActor(String actorId, String movieId) {
+        if(!(checkIfActorIdExists(actorId) && checkIfMovieIdExists(movieId))) {
+            return 404;
+        } else if (checkIfRelationShipExists(actorId, movieId)) {
+            return 400;
+        } else {
+            try (Session session = driver.session()){
+                session.writeTransaction(tx -> tx.run("MATCH (a:Actor {actorId:$x}),"
+                        + "(t:Movie {movieId:$y})\n" +
+                        "MERGE (a)-[r:ACTED]->(t)\n" +
+                        "RETURN r", parameters("x", actorId, "y", movieId)));
+                session.close();
+                return 200;
+            }
         }
     }
 

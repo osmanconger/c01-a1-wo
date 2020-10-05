@@ -35,11 +35,8 @@ public class AddRelationship implements HttpHandler {
         if (deserialized.has("actorId") && deserialized.has("movieId")) {
             String actorId = deserialized.getString("actorId");
             String movieId = deserialized.getString("movieId");
-            System.out.println(actorId + ":" + movieId);
 
-            database.linkMovieActor(actorId, movieId);
-
-            httpExchange.sendResponseHeaders(200, -1);
+            httpExchange.sendResponseHeaders(database.linkMovieActor(actorId, movieId), -1);
         } else {
             httpExchange.sendResponseHeaders(400, -1);
         }
