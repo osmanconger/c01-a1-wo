@@ -21,6 +21,8 @@ public class AddActor implements HttpHandler {
         try {
             if (httpExchange.getRequestMethod().equals("PUT")) {
                 handlePut(httpExchange);
+            } else {
+                httpExchange.sendResponseHeaders(400, -1);
             }
         } catch (Exception e) {
             e.printStackTrace();

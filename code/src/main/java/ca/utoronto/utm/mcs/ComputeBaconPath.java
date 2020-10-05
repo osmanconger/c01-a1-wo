@@ -21,6 +21,8 @@ public class ComputeBaconPath implements HttpHandler {
         try {
             if (httpExchange.getRequestMethod().equals("GET")) {
                 handleGet(httpExchange);
+            } else {
+                httpExchange.sendResponseHeaders(400, -1);
             }
         } catch (Exception e) {
             e.printStackTrace();
