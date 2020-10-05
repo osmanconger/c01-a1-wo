@@ -82,7 +82,7 @@ public class Database {
         {
             try (Transaction tx = session.beginTransaction()) {
                 Result node_boolean = tx.run("RETURN EXISTS( (:Actor {actorId: $x})\n" +
-                                "-[:ACTED]-(:Movie {movieId: $y}) ) as bool"
+                                "-[:ACTED_IN]-(:Movie {movieId: $y}) ) as bool"
                         ,parameters("x", actorId, "y", movieId) );
                 if (node_boolean.hasNext()) {
                     return node_boolean.next().get("bool").toString().equals("TRUE");
@@ -109,7 +109,7 @@ public class Database {
             try (Session session = driver.session()){
                 session.writeTransaction(tx -> tx.run("MATCH (a:Actor {actorId:$x}),"
                         + "(t:Movie {movieId:$y})\n" +
-                        "MERGE (a)-[r:ACTED]->(t)\n" +
+                        "MERGE (a)-[r:ACTED_IN]->(t)\n" +
                         "RETURN r", parameters("x", actorId, "y", movieId)));
                 session.close();
                 return 200;
