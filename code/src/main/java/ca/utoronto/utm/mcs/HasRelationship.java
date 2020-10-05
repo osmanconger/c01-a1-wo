@@ -42,11 +42,11 @@ public class HasRelationship implements HttpHandler {
                 String responseBody = deserialized.put("hasRelationship", database.checkIfRelationShipExists(actorId, movieId)).toString();
                 httpExchange.getResponseHeaders().set("Content-Type", "application/json");
                 httpExchange.sendResponseHeaders(200, responseBody.length());
-                OutputStream responseStream = httpExchange.getResponseBody();
+                OutputStream outputStream = httpExchange.getResponseBody();
                 try {
-                    responseStream.write(responseBody.getBytes(Charset.defaultCharset()));
+                    outputStream.write(responseBody.getBytes(Charset.defaultCharset()));
                 } finally {
-                    responseStream.close();
+                    outputStream.close();
                 }
             } else {
                 httpExchange.sendResponseHeaders(database.checkIfHasRelationShip(actorId, movieId), -1);
