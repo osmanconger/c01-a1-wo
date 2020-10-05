@@ -169,7 +169,7 @@ public class Database {
                 try (Transaction tx = session.beginTransaction()) {
                     Result movieName = tx.run("MATCH (a:Movie {movieId:$x})"
                             + "RETURN a.movieName as name", parameters("x", movieId));
-                    String name = movieName.next().get("name").toString().replace("\"", "");
+                    String name = movieName.next().get("name").toString().replace("[\"", "").replace("\"]", "").replace("\"", "");
                     System.out.println(name);
                     return name;
 
