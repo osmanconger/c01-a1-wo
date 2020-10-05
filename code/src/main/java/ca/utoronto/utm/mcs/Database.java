@@ -5,6 +5,7 @@ import static org.neo4j.driver.Values.parameters;
 import org.neo4j.driver.*;
 import org.neo4j.driver.exceptions.DatabaseException;
 import org.neo4j.driver.internal.InternalPath;
+import org.neo4j.driver.internal.InternalResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -129,8 +130,9 @@ public class Database {
             try (Session session = driver.session()){
                 try (Transaction tx = session.beginTransaction()) {
                     Result actorName = tx.run("MATCH (a:Actor {actorId:$x})"
-                            + "RETURN a.actorName", parameters("x", actorId));
-                    String name = actorName.single().values().toString();
+                            + "RETURN a.actorName as name", parameters("x", actorId));
+
+                    String name = actorName.next().get("name").toString().replace("\"", "");
                     System.out.println(name);
                     return name;
                 }
@@ -166,8 +168,8 @@ public class Database {
             try (Session session = driver.session()){
                 try (Transaction tx = session.beginTransaction()) {
                     Result movieName = tx.run("MATCH (a:Movie {movieId:$x})"
-                            + "RETURN a.movieName", parameters("x", movieId));
-                    String name = movieName.single().values().toString();
+                            + "RETURN a.movieName as name", parameters("x", movieId));
+                    String name = movieName.next().get("name").toString().replace("\"", "");
                     System.out.println(name);
                     return name;
 
