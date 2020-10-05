@@ -37,7 +37,12 @@ public class ComputeBaconNumber implements HttpHandler {
         if (deserialized.has("actorId")) {
             String actorId = deserialized.getString("actorId");
             String result = database.computeBaconNumber(actorId);
-            if (!result.equals(404)) {
+            if(result.equals("400")) {
+                httpExchange.sendResponseHeaders(400, -1);
+            } else if(result.equals("404")) {
+                httpExchange.sendResponseHeaders(404, -1);
+            }
+            else {
                 JSONObject jsonObject = new JSONObject();
                 String responseBody = jsonObject.put("baconNumber", result).toString();
                 httpExchange.getResponseHeaders().set("Content-Type", "application/json");
@@ -48,8 +53,6 @@ public class ComputeBaconNumber implements HttpHandler {
                 } finally {
                     outputStream.close();
                 }
-            } else {
-                httpExchange.sendResponseHeaders(404, -1);
             }
         } else {
             httpExchange.sendResponseHeaders(400, -1);

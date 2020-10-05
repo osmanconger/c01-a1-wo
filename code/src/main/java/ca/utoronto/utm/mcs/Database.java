@@ -138,6 +138,7 @@ public class Database {
         }
     }
 
+
     public String getMoviesActedIn(String actorId) {
         if(!(checkIfActorIdExists(actorId))) {
             return "";
@@ -198,28 +199,29 @@ public class Database {
     public String computeBaconNumber(String actorId) {
         try (Session session = driver.session())
         {
-            if(getActorName(actorId).equals("Kevin Bacon")) {
+            if(getActorName(actorId).equals("[\"Kevin Bacon\"]")) {
                 return "0";
-            }
-            try (Transaction tx = session.beginTransaction()) {
-                Result node_boolean = tx.run("MATCH (k:Actor { actorName: 'Kevin Bacon' }),(m:Actor { actorId: $x }), p = shortestPath((k)-[:ACTED*]-(m))\n" +
-                                "RETURN length(p) as length"
-                        ,parameters("x", actorId) );
-                if (node_boolean.hasNext()) {
-                    try {
-                        String code = node_boolean.next().get("length").toString();
-                        System.out.println("code:  " + code);
-                        return code;
-                    } catch (Exception e) {
-                        System.out.println("WIZERROR: " + e);
-                        System.out.println("0");
-                        return "0";
+            } else if(getActorName(actorId).equals("")) {
+                return "400";
+            } else {
+                try (Transaction tx = session.beginTransaction()) {
+                    Result node_boolean = tx.run("MATCH (k:Actor { actorName: 'Kevin Bacon' }),(m:Actor { actorId: $x }), p = shortestPath((k)-[:ACTED_IN*]-(m))\n" +
+                                    "RETURN length(p) as length"
+                            , parameters("x", actorId));
+                    if (node_boolean.hasNext()) {
+                        try {
+                            String code = node_boolean.next().get("length").toString();
+                            return code;
+                        } catch (Exception e) {
+                            System.out.println("WIZERROR: " + e);
+                            System.out.println("0");
+                            return "0";
+                        }
+                    } else {
+                        // no paths exist
+                        return "404";
                     }
-                } else {
-                    // no paths exist
-                    return "404";
                 }
-
             }
         }
     }
