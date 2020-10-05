@@ -8,6 +8,8 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GetMovie implements HttpHandler {
 
@@ -38,7 +40,7 @@ public class GetMovie implements HttpHandler {
         if (deserialized.has("movieId")) {
             String movieId = deserialized.getString("movieId");
             String movieName = database.getMovieName(movieId);
-            String actorsActedIn = database.getActorsActedIn(movieId);
+            List<String> actorsActedIn = database.getActorsActedIn(movieId);
 
             String responseBody = deserialized.put("name", movieName).put("actors", actorsActedIn).toString();
             httpExchange.getResponseHeaders().set("Content-Type", "application/json");

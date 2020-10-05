@@ -8,6 +8,7 @@ import org.neo4j.driver.internal.InternalPath;
 import org.neo4j.driver.internal.InternalResult;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Database {
@@ -178,9 +179,9 @@ public class Database {
         }
     }
 
-    public String getActorsActedIn(String movieId) {
+    public List<String> getActorsActedIn(String movieId) {
         if(!(checkIfMovieIdExists(movieId))) {
-            return "";
+            return null;
         } else {
             try (Session session = driver.session()){
                 try (Transaction tx = session.beginTransaction()) {
@@ -190,8 +191,15 @@ public class Database {
                     if(actorsActedIn.hasNext()) {
                         actors = actorsActedIn.list();
                     }
-                    System.out.println(actors.toString());
-                    return actors.toString();
+                    String actors_ids = "";
+                    for(int i = 0; i<actors.size(); i++) {
+                        String id = actors.get(i).values().toString();
+                        actors_ids = actors_ids + id.substring(2,id.length()-2) + ",";
+                    }
+                    actors_ids = actors_ids.substring(0, actors_ids.length()-1);
+                    List<String> myList = new ArrayList<String>(Arrays.asList(actors_ids.split(",")));
+
+                    return myList;
 
                 }
             }
