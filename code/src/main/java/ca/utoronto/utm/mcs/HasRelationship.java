@@ -6,6 +6,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
 
 
 public class HasRelationship implements HttpHandler {
@@ -36,15 +38,22 @@ public class HasRelationship implements HttpHandler {
             String actorId = deserialized.getString("actorId");
             String movieId = deserialized.getString("movieId");
 
-            //database.insertActorId("1");
-            //database.insertActorName(actorName);
-            //database.insertActor(actorId, actorName);
-            //database.close();
+            if(database.checkIfHasRelationShip(actorId, movieId) == 200) {
+                String responseBody = deserialized.put("hasRelationship", database.checkIfRelationShipExists(actorId, movieId)).toString();
+                httpExchange.getResponseHeaders().set("Content-Type", "application/json");
+                httpExchange.sendResponseHeaders(200, responseBody.length());
+                OutputStream responseStream = httpExchange.getResponseBody();
+                try {
+                    responseStream.write(responseBody.getBytes(Charset.defaultCharset()));
+                } finally {
+                    responseStream.close();
+                }
+            } else {
+                httpExchange.sendResponseHeaders(database.checkIfHasRelationShip(actorId, movieId), -1);
+            }
 
-            httpExchange.sendResponseHeaders(200, -1);
         } else {
             httpExchange.sendResponseHeaders(400, -1);
         }
-
     }
 }

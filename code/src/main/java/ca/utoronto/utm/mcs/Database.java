@@ -77,7 +77,7 @@ public class Database {
         }
     }
 
-    private boolean checkIfRelationShipExists(String actorId, String movieId) {
+    public boolean checkIfRelationShipExists(String actorId, String movieId) {
         try (Session session = driver.session())
         {
             try (Transaction tx = session.beginTransaction()) {
@@ -90,6 +90,14 @@ public class Database {
             }
         }
         return false;
+    }
+
+    public int checkIfHasRelationShip(String actorId, String movieId) {
+        if(!(checkIfActorIdExists(actorId) && checkIfMovieIdExists(movieId))) {
+            return 404;
+        } else {
+            return 200;
+        }
     }
 
     public int linkMovieActor(String actorId, String movieId) {
