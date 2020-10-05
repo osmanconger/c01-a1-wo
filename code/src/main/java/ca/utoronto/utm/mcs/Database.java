@@ -146,7 +146,7 @@ public class Database {
             try (Session session = driver.session()){
                 try (Transaction tx = session.beginTransaction()) {
                     Result moviesActedIn = tx.run("MATCH (a:Actor {actorId:$x})-->(Movie)"
-                            + "RETURN Movie.movieName", parameters("x", actorId));
+                            + "RETURN Movie.movieId", parameters("x", actorId));
                     List<Record> movies = new ArrayList<Record>();
                     if(moviesActedIn.hasNext()) {
                         movies = moviesActedIn.list();
@@ -183,7 +183,7 @@ public class Database {
             try (Session session = driver.session()){
                 try (Transaction tx = session.beginTransaction()) {
                     Result actorsActedIn = tx.run("MATCH (a:Movie {movieId:$x})<--(Actor)"
-                            + "RETURN Actor.actorName", parameters("x", movieId));
+                            + "RETURN Actor.actorId", parameters("x", movieId));
                     List<Record> actors = new ArrayList<Record>();
                     if(actorsActedIn.hasNext()) {
                         actors = actorsActedIn.list();

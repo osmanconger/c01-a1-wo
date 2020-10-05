@@ -6,6 +6,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
 
 
 public class GetActor implements HttpHandler {
@@ -40,10 +42,18 @@ public class GetActor implements HttpHandler {
             String actorName = database.getActorName(actorId);
             String moviesActedIn = database.getMoviesActedIn(actorId);
 
+            String responseBody = deserialized.put("name", actorName).put("movies", moviesActedIn).toString();
+            httpExchange.getResponseHeaders().set("Content-Type", "application/json");
+            httpExchange.sendResponseHeaders(200, responseBody.length());
+            OutputStream outputStream = httpExchange.getResponseBody();
+            try {
+                outputStream.write(responseBody.getBytes(Charset.defaultCharset()));
+            } finally {
+                outputStream.close();
+            }
             httpExchange.sendResponseHeaders(200, -1);
         } else {
             httpExchange.sendResponseHeaders(400, -1);
         }
-
     }
 }
