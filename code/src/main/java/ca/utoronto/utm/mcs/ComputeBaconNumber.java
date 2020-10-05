@@ -6,6 +6,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
 
 
 public class ComputeBaconNumber implements HttpHandler {
@@ -34,13 +36,21 @@ public class ComputeBaconNumber implements HttpHandler {
 
         if (deserialized.has("actorId")) {
             String actorId = deserialized.getString("actorId");
-
-            //database.insertActorId("1");
-            //database.insertActorName(actorName);
-            //database.insertActor(actorId, actorName);
-            //database.close();
-
-            httpExchange.sendResponseHeaders(200, -1);
+            String result = database.computeBaconNumber(actorId);
+            if (!result.equals(404)) {
+                JSONObject jsonObject = new JSONObject();
+                String responseBody = jsonObject.put("baconNumber", result).toString();
+                httpExchange.getResponseHeaders().set("Content-Type", "application/json");
+                httpExchange.sendResponseHeaders(200, responseBody.length());
+                OutputStream outputStream = httpExchange.getResponseBody();
+                try {
+                    outputStream.write(responseBody.getBytes(Charset.defaultCharset()));
+                } finally {
+                    outputStream.close();
+                }
+            } else {
+                httpExchange.sendResponseHeaders(404, -1);
+            }
         } else {
             httpExchange.sendResponseHeaders(400, -1);
         }

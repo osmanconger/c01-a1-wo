@@ -35,10 +35,8 @@ public class GetActor implements HttpHandler {
         if (deserialized.has("actorId")) {
             String actorId = deserialized.getString("actorId");
 
-            //database.insertActorId("1");
-            //database.insertActorName(actorName);
-            //database.insertActor(actorId, actorName);
-            //database.close();
+            String actorName = database.getActorName(actorId);
+            String moviesActedIn = database.getMoviesActedIn(actorId);
 
             httpExchange.sendResponseHeaders(200, -1);
         } else {

@@ -3,6 +3,11 @@ package ca.utoronto.utm.mcs;
 import static org.neo4j.driver.Values.parameters;
 
 import org.neo4j.driver.*;
+import org.neo4j.driver.exceptions.DatabaseException;
+import org.neo4j.driver.internal.InternalPath;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Database {
     private Driver driver;
@@ -113,6 +118,108 @@ public class Database {
                         "RETURN r", parameters("x", actorId, "y", movieId)));
                 session.close();
                 return 200;
+            }
+        }
+    }
+
+    public String getActorName(String actorId) {
+        if(!(checkIfActorIdExists(actorId))) {
+            return "";
+        } else {
+            try (Session session = driver.session()){
+                try (Transaction tx = session.beginTransaction()) {
+                    Result actorName = tx.run("MATCH (a:Actor {actorId:$x})"
+                            + "RETURN a.actorName", parameters("x", actorId));
+                    String name = actorName.single().values().toString();
+                    System.out.println(name);
+                    return name;
+                }
+            }
+        }
+    }
+
+    public String getMoviesActedIn(String actorId) {
+        if(!(checkIfActorIdExists(actorId))) {
+            return "";
+        } else {
+            try (Session session = driver.session()){
+                try (Transaction tx = session.beginTransaction()) {
+                    Result moviesActedIn = tx.run("MATCH (a:Actor {actorId:$x})-->(Movie)"
+                            + "RETURN Movie.movieName", parameters("x", actorId));
+                    List<Record> movies = new ArrayList<Record>();
+                    if(moviesActedIn.hasNext()) {
+                        movies = moviesActedIn.list();
+                    }
+                    System.out.println(movies.toString());
+                    return movies.toString();
+
+                }
+            }
+        }
+    }
+
+    public String getMovieName(String movieId) {
+        if(!(checkIfMovieIdExists(movieId))) {
+            return "";
+        } else {
+            try (Session session = driver.session()){
+                try (Transaction tx = session.beginTransaction()) {
+                    Result movieName = tx.run("MATCH (a:Movie {movieId:$x})"
+                            + "RETURN a.movieName", parameters("x", movieId));
+                    String name = movieName.single().values().toString();
+                    System.out.println(name);
+                    return name;
+
+                }
+            }
+        }
+    }
+
+    public String getActorsActedIn(String movieId) {
+        if(!(checkIfMovieIdExists(movieId))) {
+            return "";
+        } else {
+            try (Session session = driver.session()){
+                try (Transaction tx = session.beginTransaction()) {
+                    Result actorsActedIn = tx.run("MATCH (a:Movie {movieId:$x})<--(Actor)"
+                            + "RETURN Actor.actorName", parameters("x", movieId));
+                    List<Record> actors = new ArrayList<Record>();
+                    if(actorsActedIn.hasNext()) {
+                        actors = actorsActedIn.list();
+                    }
+                    System.out.println(actors.toString());
+                    return actors.toString();
+
+                }
+            }
+        }
+    }
+
+    public String computeBaconNumber(String actorId) {
+        try (Session session = driver.session())
+        {
+            if(getActorName(actorId).equals("Kevin Bacon")) {
+                return "0";
+            }
+            try (Transaction tx = session.beginTransaction()) {
+                Result node_boolean = tx.run("MATCH (k:Actor { actorName: 'Kevin Bacon' }),(m:Actor { actorId: $x }), p = shortestPath((k)-[:ACTED*]-(m))\n" +
+                                "RETURN length(p) as length"
+                        ,parameters("x", actorId) );
+                if (node_boolean.hasNext()) {
+                    try {
+                        String code = node_boolean.next().get("length").toString();
+                        System.out.println("code:  " + code);
+                        return code;
+                    } catch (Exception e) {
+                        System.out.println("WIZERROR: " + e);
+                        System.out.println("0");
+                        return "0";
+                    }
+                } else {
+                    // no paths exist
+                    return "404";
+                }
+
             }
         }
     }

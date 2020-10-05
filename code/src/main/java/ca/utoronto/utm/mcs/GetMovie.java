@@ -7,7 +7,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-
 public class GetMovie implements HttpHandler {
 
     private Database database;
@@ -34,11 +33,8 @@ public class GetMovie implements HttpHandler {
 
         if (deserialized.has("movieId")) {
             String movieId = deserialized.getString("movieId");
-
-            //database.insertActorId("1");
-            //database.insertActorName(actorName);
-            //database.insertActor(actorId, actorName);
-            //database.close();
+            String movieName = database.getMovieName(movieId);
+            String actorsActedIn = database.getActorsActedIn(movieId);
 
             httpExchange.sendResponseHeaders(200, -1);
         } else {
