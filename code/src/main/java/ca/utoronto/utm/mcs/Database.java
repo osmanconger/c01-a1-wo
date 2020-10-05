@@ -142,9 +142,9 @@ public class Database {
     }
 
 
-    public String getMoviesActedIn(String actorId) {
+    public List<String> getMoviesActedIn(String actorId) {
         if(!(checkIfActorIdExists(actorId))) {
-            return "";
+            return null;
         } else {
             try (Session session = driver.session()){
                 try (Transaction tx = session.beginTransaction()) {
@@ -154,9 +154,14 @@ public class Database {
                     if(moviesActedIn.hasNext()) {
                         movies = moviesActedIn.list();
                     }
-                    System.out.println(movies.toString());
-                    return movies.toString();
-
+                    String movies_ids = "";
+                    for(int i = 0; i<movies.size(); i++) {
+                        String id = movies.get(i).values().toString();
+                        movies_ids = movies_ids + id.substring(2,id.length()-2) + ",";
+                    }
+                    movies_ids = movies_ids.substring(0, movies_ids.length()-1);
+                    List<String> myList = new ArrayList<String>(Arrays.asList(movies_ids.split(",")));
+                    return myList;
                 }
             }
         }
