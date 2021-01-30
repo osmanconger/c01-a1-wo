@@ -1,1 +1,1 @@
-# a1-c01-a1-wo
+This is a REST API of a movie database that uses Neo4j. It enables the caller to make use of CRUD operations for actors and an endpoint for the computation of the shortest path between an actor and Kevin Bacon. 
